@@ -24,6 +24,7 @@ void CGameClient::OnUpdate()
             vec2 HookDir(pChar->m_HookPos.x - pPrevChar->m_HookPos.x, pChar->m_HookPos.y - pPrevChar->m_HookPos.y);
             vec2 PrevHookDir(pPrevChar->m_HookPos.x - pPrevChar->m_HookPos.x, pPrevChar->m_HookPos.y - pPrevChar->m_HookPos.y);
             
+            // Вычисляем разницу углов
             float AngleDiff = angle(HookDir) - angle(PrevHookDir);
             
             // Если угол меняется слишком резко (больше 45 градусов за тик)
