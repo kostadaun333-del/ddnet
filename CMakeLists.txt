@@ -143,9 +143,6 @@ set_src(ENGINE_SHARED GLOB src/engine/shared
 
 set_src(GAME_CLIENT GLOB_RECURSE src/game/client
   animstate.cpp animstate.h component.cpp component.h
-  components/bestclient/automargin.cpp components/bestclient/automargin.h components/bestclient/better_preview.cpp components/bestclient/better_preview.h
-  components/bestclient/chat_scroll.cpp components/bestclient/chat_scroll.h components/bestclient/clientindicator/browser_cache.cpp
-  components/bestclient/clientindicator/version_label.h components/bestclient/scoreboard.cpp components/bestclient/scoreboard.h components/bestclient/version.h
   components/console.cpp components/console.h components/controls.cpp components/controls.h components/countryflags.cpp components/countryflags.h
   components/demo.cpp components/demo.h components/editor.cpp components/editor.h components/emoticon.cpp components/emoticon.h
   components/engine.cpp components/engine.h components/ghost.cpp components/ghost.h components/hud.cpp components/hud.h
