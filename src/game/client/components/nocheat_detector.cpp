@@ -1,20 +1,37 @@
 #include <game/client/gameclient.h>
-#include <engine/shared/config.h>
 
-void CGameClient::OnMessage(int MsgId, CUnpacker *pUnpacker, int Conn, bool Dummy)
+void CGameClient::OnUpdate()
 {
-    IGameClient::OnMessage(MsgId, pUnpacker, Conn, Dummy);
+    // Вызываем оригинальную функцию (чтобы игра не сломалась)
+    IGameClient::OnUpdate();
 
-    if(MsgId == NETMSGTYPE_SV_CHAT)
+    // Проходим по всем игрокам
+    for(int i = 0; i < MAX_CLIENTS; i++)
     {
-        CNetMsg_Sv_Chat *pMsg = (CNetMsg_Sv_Chat *)pUnpacker->Unpack();
-        if(pMsg->m_ClientId >= 0 && pMsg->m_ClientId < MAX_CLIENTS)
+        // Пропускаем себя и тех, кого нет на сервере
+        if(i == m_Snap.m_LocalClientId || !m_Snap.m_apPlayerInfos[i]) 
+            continue;
+
+        const CNetObj_Character *pChar = m_Snap.m_aCharacters[i].m_Cur;
+        const CNetObj_Character *pPrevChar = m_Snap.m_aCharacters[i].m_Prev;
+
+        if(!pChar || !pPrevChar) continue;
+
+        // Если игрок использует хук
+        if(pChar->m_HookState == HOOK_FLYING || pChar->m_HookState == HOOK_GRABBED)
         {
-            const char *pText = pMsg->m_pMessage;
-            if(str_find_nocase(pText, "софт") || str_find_nocase(pText, "чит") || str_find_nocase(pText, "cheat"))
+            // Считаем угол хука сейчас и в предыдущем тике
+            vec2 HookDir(pChar->m_HookPos.x - pPrevChar->m_HookPos.x, pChar->m_HookPos.y - pPrevChar->m_HookPos.y);
+            vec2 PrevHookDir(pPrevChar->m_HookPos.x - pPrevChar->m_HookPos.x, pPrevChar->m_HookPos.y - pPrevChar->m_HookPos.y);
+            
+            float AngleDiff = angle(HookDir) - angle(PrevHookDir);
+            
+            // Если угол меняется слишком резко (больше 45 градусов за тик)
+            if(abs(AngleDiff) > 0.785f) 
             {
+                // Выводим в консоль предупреждение
                 char aBuf[256];
-                str_format(aBuf, sizeof(aBuf), "NoCheat: Игрок %s написал слово-триггер!", m_aClients[pMsg->m_ClientId].m_aName);
+                str_format(aBuf, sizeof(aBuf), "NoCheat: Игрок %s подозрительно крутит хуком!", m_aClients[i].m_aName);
                 Console()->Print(IConsole::OUTPUT_LEVEL_STANDARD, "nocheat", aBuf);
             }
         }
